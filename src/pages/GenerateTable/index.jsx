@@ -8,9 +8,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { toast } from "react-toastify";
-
 import { QUESTIONS } from "../../assets/QUESTIONS/QUESTIONS";
 import CardQuestion from "../../components/Question_item";
+import SubmitArea from "../../components/SubmitArea";
 
 function GenerateTable() {
   const [easyQuestion, setEasyQuestion] = useState(0);
@@ -35,19 +35,19 @@ function GenerateTable() {
       countMedium = 0,
       countHard = 0;
     let i = 0;
-    while (i != total) {
+    while (i < total) { // Fix: i < total instead of i != total
       let randomQuest = pickRandomQuestion();
-      if (randomQuest.difficulty === "easy" && countEasy <= easy) {
+      if (randomQuest.difficulty === "easy" && countEasy < easy) { // Fix: Change <= to <
         questList.push(randomQuest);
         countEasy++;
         i++;
       }
-      if (randomQuest.difficulty === "medium" && countMedium <= medium) {
+      if (randomQuest.difficulty === "medium" && countMedium < medium) {
         questList.push(randomQuest);
         countMedium++;
         i++;
       }
-      if (randomQuest.difficulty === "hard" && countHard <= hard) {
+      if (randomQuest.difficulty === "hard" && countHard < hard) {
         questList.push(randomQuest);
         countHard++;
         i++;
@@ -60,6 +60,7 @@ function GenerateTable() {
 
   const handleValue = () => {
     let easyQuest, mediumQuest, hardQuest;
+
     try {
       easyQuest = parseInt(easyQuestion).valueOf();
       mediumQuest = parseInt(mediumQuestion).valueOf();
@@ -68,28 +69,33 @@ function GenerateTable() {
       if (isNaN(easyQuest) || isNaN(mediumQuest) || isNaN(hardQuest)) {
         throw new Error("Invalid number!");
       }
-      if (easyQuest + mediumQuest + hardQuest > 50){
-        throw new Error("Total quest too big, please enter smaller question number!");
+      if (easyQuest + mediumQuest + hardQuest > 50) {
+        throw new Error(
+          "Total quest too big, please enter smaller question number!"
+        );
       }
+      if (easyQuest + mediumQuest + hardQuest === 0) {
+        throw new Error("please enter number of question!");
+      }
+
+      setValidate(false);
+      toast.success("success");
+      handleQuestion(easyQuest, mediumQuest, hardQuest); // Fix: Pass mediumQuest and hardQuest correctly
+      setVisible(true);
     } catch (error) {
       setValidate(true);
-      toast.error(error.message);
+      toast.error("invalid!");
     }
-    setValidate(false);
-    toast.success("success");
-    handleQuestion(easyQuest, easyQuest, easyQuest);
-    setVisible(true);
   };
 
-
-
-  const handleDeletedCard = () => {
+  const removeAllQuest = () => {
     setVisible(false);
     setEasyQuestion(0);
     setMediumQuestion(0);
     setHardQuestion(0);
-    toast.error("DELETED ALL QUESTION");
+    toast.success("DELETED ALL QUESTION"); // Fix: Changed to toast.success
   };
+
   return (
     <>
       <Box
@@ -147,7 +153,6 @@ function GenerateTable() {
                 label="Easy"
                 variant="outlined"
                 value={easyQuestion}
-                size="normal"
                 type="number"
                 onChange={(e) => setEasyQuestion(e.target.value)}
               />
@@ -157,7 +162,6 @@ function GenerateTable() {
                 label="Medium"
                 variant="outlined"
                 value={mediumQuestion}
-                size="normal"
                 type="number"
                 onChange={(e) => setMediumQuestion(e.target.value)}
               />
@@ -167,7 +171,6 @@ function GenerateTable() {
                 label="Hard"
                 variant="outlined"
                 value={hardQuestion}
-                size="normal"
                 type="number"
                 onChange={(e) => setHardQuestion(e.target.value)}
               />
@@ -186,7 +189,7 @@ function GenerateTable() {
       </Box>
       <Box
         sx={{
-          width: "100vw",
+          width: "100%",
           height: "100%",
           backgroundColor: "#eee",
           padding: 0,
@@ -198,25 +201,20 @@ function GenerateTable() {
           justifyContent: "center",
         }}
       >
-       
+        {pickedQuest.map((Quest, index) =>
+          isVisible ? (
+            <CardQuestion
+              key={index} // Fix: Added key
+              Quest={Quest}
+              index={index}
+              removeAllQuest={removeAllQuest}
+            />
+          ) : null
+        )}
+       {pickedQuest.length > 0 && isVisible && <SubmitArea removeAllQuest={removeAllQuest} />}
       </Box>
     </>
   );
 }
 
 export default GenerateTable;
-
-
-// {cardQuestion.map((Quest, index) =>
-//   isVisible === true ? (
-//     <>
-//       <CardQuestion
-//         Quest={Quest}
-//         index={index}
-//         handleDeletedCard={handleDeletedCard}
-//       />
-//     </>
-//   ) : (
-//     <></>
-//   )
-// )}
