@@ -1,10 +1,9 @@
 import { Button, IconButton, Stack } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
 
-
-export default function SubmitArea({removeAllQuest}) {
+export default function SubmitArea({ removeAllQuest, handleSubmit }) {
   return (
     <div>
       <Stack
@@ -44,6 +43,7 @@ export default function SubmitArea({removeAllQuest}) {
             justifyContent: "space-evenly",
             boxSizing: "border-box",
           }}
+          onClick={() => handleSubmit()}
         >
           <IconButton aria-label="submit" size="normal">
             <SendIcon fontSize="inherit" sx={{ color: "#CECECC" }} />
@@ -54,7 +54,7 @@ export default function SubmitArea({removeAllQuest}) {
   );
 }
 
-
 SubmitArea.propTypes = {
   removeAllQuest: PropTypes.func.isRequired,
-}
+  handleSubmit: PropTypes.func.isRequired,
+};

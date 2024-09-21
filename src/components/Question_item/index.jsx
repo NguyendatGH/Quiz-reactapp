@@ -12,97 +12,102 @@ import {
 } from "@mui/material";
 import { getColor } from "../../assets/ChangeColor/changeColor";
 import PropTypes from "prop-types";
+import { useState, useEffect } from "react";
 
+export default function CardQuestion({ Quest, index, setAnswer }) {
+  const [shuffledAnswers, setShuffledAnswers] = useState([]);
 
-export default function CardQuestion({ Quest, index }) {
+  const shuffleAnswers = (answers) => {
+    for (let i = answers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+    return answers;
+  };
+
+  useEffect(() => {
+    const combinedAnswers = [...Quest.incorrectAnswers, Quest.correctAnswer];
+    setShuffledAnswers(shuffleAnswers(combinedAnswers));
+    console.log("Shuffled answers:", shuffledAnswers); // Debug shuffled answers
+  }, [Quest]);
+
   return (
-    <>
-      <Box
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        position: "relative",
+        top: "20px",
+        left: "0%",
+        margin: "0 auto",
+        alignItems: "center",
+      }}
+    >
+      <Card
+        key={index}
         sx={{
+          margin: 1,
+          boxShadow: "0px 2px #DAD9D8",
           display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          position: "relative",
-          top: "20px",
-          left: "0%",
-          margin: "0 auto",
-          alignItems: "center",
+          flexDirection: "row",
+          boxSizing: "border-box",
+          width: "70%",
+          height: "30%",
         }}
       >
-        <Card
-          key={index}
+        <Chip
           sx={{
-            margin: 1,
-            boxShadow: "0px 2px #DAD9D8",
+            width: 8,
+            height: "auto",
+          }}
+          color={getColor(Quest.difficulty)}
+        ></Chip>
+        <CardContent
+          sx={{
             display: "flex",
-            flexDirection: "row",
-            boxSizing: "border-box",
-            width: "70%",
-            height: "30%",
+            flexDirection: "column",
           }}
         >
-          <Chip
-            sx={{
-              width: 8,
-              height: "auto",
-            }}
-            color={getColor(Quest.difficulty)}
-          ></Chip>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Box>
-              <Typography
-                gutterBottom
-                variant="h6"
-                component="div"
-                marginBottom={0}
-              >
-                {index + 1}. {Quest.question.text}
-              </Typography>
-              <FormControl
-                sx={{
-                  paddingTop: "30px",
+          <Box>
+            <Typography
+              gutterBottom
+              variant="h6"
+              component="div"
+              marginBottom={0}
+            >
+              {index + 1}. {Quest.question.text}
+            </Typography>
+            <FormControl
+              sx={{
+                paddingTop: "30px",
+              }}
+            >
+              <FormLabel id="demo-column-radio-buttons-group-label">
+                Your answer
+              </FormLabel>
+              <RadioGroup
+                column
+                aria-labelledby="demo-column-radio-buttons-group-label"
+                name="column-radio-buttons-group"
+                onChange={(e) => {
+                  setAnswer(index, e.target.value); 
                 }}
               >
-                <FormLabel id="demo-column-radio-buttons-group-label">
-                  Your answer
-                </FormLabel>
-                <RadioGroup
-                  column
-                  aria-labelledby="demo-column-radio-buttons-group-label"
-                  name="column-radio-buttons-group"
-                >
+                {shuffledAnswers.map((ans, idx) => (
                   <FormControlLabel
-                    value={Quest.incorrectAnswers[0]}
+                    key={idx}
+                    value={ans}
                     control={<Radio />}
-                    label={Quest.incorrectAnswers[0]}
+                    label={ans}
                   />
-                  <FormControlLabel
-                    value={Quest.correctAnswer}
-                    control={<Radio />}
-                    label={Quest.correctAnswer}
-                  />
-                  <FormControlLabel
-                    value={Quest.incorrectAnswers[1]}
-                    control={<Radio />}
-                    label={Quest.incorrectAnswers[1]}
-                  />
-                  <FormControlLabel
-                    value={Quest.incorrectAnswers[2]}
-                    control={<Radio />}
-                    label={Quest.incorrectAnswers[2]}
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-    </>
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 
@@ -116,5 +121,5 @@ CardQuestion.propTypes = {
     incorrectAnswers: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   index: PropTypes.number.isRequired,
-
+  setAnswer: PropTypes.func.isRequired,
 };

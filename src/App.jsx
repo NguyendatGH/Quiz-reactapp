@@ -1,16 +1,22 @@
 // import React from "react";
-import { Route, Routes } from "react-router-dom";
-// import Home from "./pages/Home";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import GenerateTable from "./pages/GenerateTable";
 function App() {
   return (
-    <Routes>
-      <Route element={<Login></Login>} path="/login"></Route>
-      {/* <Route element={<Home></Home>} path="/"></Route> */}
-      <Route element={<GenerateTable></GenerateTable>} path="/GenerateTable"></Route>
-      {/* <Route element={<>PAGE NOT FOUND! ERROR 404</>} path="/*"></Route> */}
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />}></Route>
+        <Route path="/login" element={<Login></Login>}></Route>
+        <Route path="/home" element={<Home></Home>}></Route>
+        <Route
+          path="/generateTable"
+          element={<GenerateTable></GenerateTable>}
+        ></Route>
+        <Route path="/*" element={<>PAGE NOT FOUND! ERROR 404</>}></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

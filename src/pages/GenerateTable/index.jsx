@@ -20,43 +20,59 @@ function GenerateTable() {
   const [validate, setValidate] = useState(false);
   const [pickedQuest, setPickedQuest] = useState([]);
   const [isVisible, setVisible] = useState(true);
+  const [userAnswer, setUserAnswer] = useState({});
+
+  const [correctCount, setCorrectCount] = useState(0);
+
+  const setAnswer = (index, ans) => {
+    setUserAnswer((prev) => {
+      console.log("Setting answer for index", index, "with answer", ans);
+      return {
+        ...prev,
+        [index]: ans,
+      };
+    });
+  };
 
   const pickRandomQuestion = () => {
     const randomIndex = Math.floor(Math.random() * QUESTIONS.length);
     return QUESTIONS[randomIndex];
   };
 
-  const handleQuestion = (easy, medium, hard) => {
-    console.log("total inside handleQuestion : ", easy + medium + hard);
-    let total = easy + medium + hard;
-    const questList = [];
+  const getTotalQuestion = (easy, medium, hard) => {
+    if (easy < 0 || medium < 0 || hard < 0) {
+      toast.error("Question can't be negative number");
+    } else {
+      let total = easy + medium + hard;
+      const questList = [];
 
-    let countEasy = 0,
-      countMedium = 0,
-      countHard = 0;
-    let i = 0;
-    while (i < total) { // Fix: i < total instead of i != total
-      let randomQuest = pickRandomQuestion();
-      if (randomQuest.difficulty === "easy" && countEasy < easy) { // Fix: Change <= to <
-        questList.push(randomQuest);
-        countEasy++;
-        i++;
+      let countEasy = 0,
+        countMedium = 0,
+        countHard = 0;
+      let i = 0;
+      while (i < total) {
+        let randomQuest = pickRandomQuestion();
+        if (randomQuest.difficulty === "easy" && countEasy < easy) {
+          questList.push(randomQuest);
+          countEasy++;
+          i++;
+        }
+        if (randomQuest.difficulty === "medium" && countMedium < medium) {
+          questList.push(randomQuest);
+          countMedium++;
+          i++;
+        }
+        if (randomQuest.difficulty === "hard" && countHard < hard) {
+          questList.push(randomQuest);
+          countHard++;
+          i++;
+        }
       }
-      if (randomQuest.difficulty === "medium" && countMedium < medium) {
-        questList.push(randomQuest);
-        countMedium++;
-        i++;
-      }
-      if (randomQuest.difficulty === "hard" && countHard < hard) {
-        questList.push(randomQuest);
-        countHard++;
-        i++;
-      }
+      setPickedQuest(questList);
     }
-    setPickedQuest(questList);
   };
 
-  console.log(pickedQuest);
+  // console.log(pickedQuest);
 
   const handleValue = () => {
     let easyQuest, mediumQuest, hardQuest;
@@ -80,7 +96,7 @@ function GenerateTable() {
 
       setValidate(false);
       toast.success("success");
-      handleQuestion(easyQuest, mediumQuest, hardQuest); // Fix: Pass mediumQuest and hardQuest correctly
+      getTotalQuestion(easyQuest, mediumQuest, hardQuest);
       setVisible(true);
     } catch (error) {
       setValidate(true);
@@ -93,7 +109,22 @@ function GenerateTable() {
     setEasyQuestion(0);
     setMediumQuestion(0);
     setHardQuestion(0);
-    toast.success("DELETED ALL QUESTION"); // Fix: Changed to toast.success
+    toast.success("DELETED ALL QUESTION");
+  };
+
+  const handleSubmit = () => {
+    console.log("here is the handlesubmit")
+    let correct = 0;
+    pickedQuest.forEach((quest, idx) => {
+      if (userAnswer[idx] === undefined) {
+        toast.error(`Question ${idx + 1} is unanswered!`);
+        return;
+      }
+      if (userAnswer[idx] === quest.correctAnswer) {
+        correct++;
+      }
+    });
+    setCorrectCount(correct);
   };
 
   return (
@@ -101,7 +132,7 @@ function GenerateTable() {
       <Box
         sx={{
           minWidth: "100%",
-          minHeight: "60vh",
+          minHeight: "40vh",
           backgroundColor: "#eee",
           padding: 0,
           gap: 10,
@@ -204,14 +235,27 @@ function GenerateTable() {
         {pickedQuest.map((Quest, index) =>
           isVisible ? (
             <CardQuestion
-              key={index} // Fix: Added key
+              key={index}
               Quest={Quest}
               index={index}
-              removeAllQuest={removeAllQuest}
+              setAnswer={setAnswer}
+              isCorrect={userAnswer[index] === Quest.correctAnswer}
             />
           ) : null
         )}
-       {pickedQuest.length > 0 && isVisible && <SubmitArea removeAllQuest={removeAllQuest} />}
+        {pickedQuest.length > 0 && isVisible && (
+          <>
+            <SubmitArea
+              removeAllQuest={removeAllQuest}
+              handleSubmit={handleSubmit}
+            />
+            {correctCount > 0 && (
+              <Typography variant="h6" component="div">
+                You got {correctCount} correct answers!
+              </Typography>
+            )}
+          </>
+        )}
       </Box>
     </>
   );
