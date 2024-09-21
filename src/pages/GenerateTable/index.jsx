@@ -11,22 +11,28 @@ import { toast } from "react-toastify";
 import { QUESTIONS } from "../../assets/QUESTIONS/QUESTIONS";
 import CardQuestion from "../../components/Question_item";
 import SubmitArea from "../../components/SubmitArea";
+import FireWorkEffect from "../../components/FireWorkEffect";
+
 
 function GenerateTable() {
   const [easyQuestion, setEasyQuestion] = useState(0);
   const [mediumQuestion, setMediumQuestion] = useState(0);
   const [hardQuestion, setHardQuestion] = useState(0);
+  const [totalQuest, setTotalQuest] = useState(0);
 
   const [validate, setValidate] = useState(false);
   const [pickedQuest, setPickedQuest] = useState([]);
   const [isVisible, setVisible] = useState(true);
   const [userAnswer, setUserAnswer] = useState({});
 
+  const [isGenerated, setIsGenerated] = useState(false);
+  const [isSubmitted, setIsSubmited] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
+
   const [correctCount, setCorrectCount] = useState(0);
 
   const setAnswer = (index, ans) => {
     setUserAnswer((prev) => {
-      console.log("Setting answer for index", index, "with answer", ans);
       return {
         ...prev,
         [index]: ans,
@@ -44,6 +50,7 @@ function GenerateTable() {
       toast.error("Question can't be negative number");
     } else {
       let total = easy + medium + hard;
+      setTotalQuest(total);
       const questList = [];
 
       let countEasy = 0,
@@ -72,8 +79,6 @@ function GenerateTable() {
     }
   };
 
-  // console.log(pickedQuest);
-
   const handleValue = () => {
     let easyQuest, mediumQuest, hardQuest;
 
@@ -98,22 +103,15 @@ function GenerateTable() {
       toast.success("success");
       getTotalQuestion(easyQuest, mediumQuest, hardQuest);
       setVisible(true);
+      setIsGenerated(true);
     } catch (error) {
       setValidate(true);
       toast.error("invalid!");
     }
   };
 
-  const removeAllQuest = () => {
-    setVisible(false);
-    setEasyQuestion(0);
-    setMediumQuestion(0);
-    setHardQuestion(0);
-    toast.success("DELETED ALL QUESTION");
-  };
-
   const handleSubmit = () => {
-    console.log("here is the handlesubmit")
+    // console.log("here is the handlesubmit");
     let correct = 0;
     pickedQuest.forEach((quest, idx) => {
       if (userAnswer[idx] === undefined) {
@@ -125,6 +123,11 @@ function GenerateTable() {
       }
     });
     setCorrectCount(correct);
+    setIsSubmited(true);
+    setShowFireworks(true);
+    setTimeout(() => {
+      setShowFireworks(false);
+    }, 5000);
   };
 
   return (
@@ -145,8 +148,9 @@ function GenerateTable() {
       >
         <Card
           sx={{
-            width: "600px",
-            height: "230px",
+            width: "34%",
+            height: "auto",
+            padding:"12px",
             position: "absolute",
             display: "flex",
             flexDirection: "row",
@@ -164,12 +168,12 @@ function GenerateTable() {
             }}
           >
             <Typography
-              variant="h4"
+              variant="h5"
               textAlign={"center"}
-              marginBottom={2}
               fontWeight={600}
+              paddingBottom={3}
             >
-              Add Your Question
+              Quizz Game
             </Typography>
             <Box
               sx={{
@@ -186,6 +190,7 @@ function GenerateTable() {
                 value={easyQuestion}
                 type="number"
                 onChange={(e) => setEasyQuestion(e.target.value)}
+                disabled={isGenerated}
               />
               <TextField
                 error={validate}
@@ -195,6 +200,7 @@ function GenerateTable() {
                 value={mediumQuestion}
                 type="number"
                 onChange={(e) => setMediumQuestion(e.target.value)}
+                disabled={isGenerated}
               />
               <TextField
                 error={validate}
@@ -204,6 +210,7 @@ function GenerateTable() {
                 value={hardQuestion}
                 type="number"
                 onChange={(e) => setHardQuestion(e.target.value)}
+                disabled={isGenerated}
               />
             </Box>
 
@@ -211,7 +218,8 @@ function GenerateTable() {
               variant="contained"
               fullWidth
               sx={{ my: -1, marginTop: "40px", width: "auto" }}
-              onClick={() => handleValue()}
+              onClick={isGenerated ? null : () => handleValue()}
+              disabled={isGenerated}
             >
               GENERATE
             </Button>
@@ -232,6 +240,11 @@ function GenerateTable() {
           justifyContent: "center",
         }}
       >
+        {isSubmitted && (
+          <Typography variant="h6" component="div">
+            You got {correctCount} / {totalQuest} correct answers!
+          </Typography>
+        )}
         {pickedQuest.map((Quest, index) =>
           isVisible ? (
             <CardQuestion
@@ -240,20 +253,30 @@ function GenerateTable() {
               index={index}
               setAnswer={setAnswer}
               isCorrect={userAnswer[index] === Quest.correctAnswer}
+              isSubmitted={isSubmitted}
             />
           ) : null
         )}
         {pickedQuest.length > 0 && isVisible && (
           <>
             <SubmitArea
-              removeAllQuest={removeAllQuest}
-              handleSubmit={handleSubmit}
+              removeAllQuest={() => {
+                setPickedQuest([]);
+                setIsSubmited(false);
+                setCorrectCount(0);
+                setIsGenerated(false);
+                setEasyQuestion(0);
+                setMediumQuestion(0);
+                setHardQuestion(0);
+                setTotalQuest(0);
+                setShowFireworks(false);
+              }}
+              handleSubmit={() => {
+                handleSubmit();
+                setShowFireworks(true);
+              }}
             />
-            {correctCount > 0 && (
-              <Typography variant="h6" component="div">
-                You got {correctCount} correct answers!
-              </Typography>
-            )}
+            {showFireworks && <FireWorkEffect />}
           </>
         )}
       </Box>

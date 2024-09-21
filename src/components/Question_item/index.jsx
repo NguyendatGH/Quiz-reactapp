@@ -13,10 +13,16 @@ import {
 import { getColor } from "../../assets/ChangeColor/changeColor";
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
-
-export default function CardQuestion({ Quest, index, setAnswer }) {
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+export default function CardQuestion({
+  Quest,
+  index,
+  setAnswer,
+  isCorrect,
+  isSubmitted,
+}) {
   const [shuffledAnswers, setShuffledAnswers] = useState([]);
-
   const shuffleAnswers = (answers) => {
     for (let i = answers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -28,7 +34,6 @@ export default function CardQuestion({ Quest, index, setAnswer }) {
   useEffect(() => {
     const combinedAnswers = [...Quest.incorrectAnswers, Quest.correctAnswer];
     setShuffledAnswers(shuffleAnswers(combinedAnswers));
-    console.log("Shuffled answers:", shuffledAnswers); // Debug shuffled answers
   }, [Quest]);
 
   return (
@@ -54,6 +59,10 @@ export default function CardQuestion({ Quest, index, setAnswer }) {
           boxSizing: "border-box",
           width: "70%",
           height: "30%",
+          backgroundColor: "#ffff",
+            "&:hover": {
+              backgroundColor: "#f0f8fa",
+            },
         }}
       >
         <Chip
@@ -78,6 +87,36 @@ export default function CardQuestion({ Quest, index, setAnswer }) {
             >
               {index + 1}. {Quest.question.text}
             </Typography>
+            {isCorrect === true && isSubmitted && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "green",
+                  marginTop: "10px",
+                }}
+              >
+                <CheckCircleIcon sx={{ marginRight: "5px", fill: "green" }} />
+                <Typography variant="body1" color="green">
+                  Correct
+                </Typography>
+              </Box>
+            )}
+            {isCorrect === false && isSubmitted && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "green",
+                  marginTop: "10px",
+                }}
+              >
+                <ErrorOutlineIcon sx={{ marginRight: "5px", fill: "red" }}/>
+                <Typography variant="body1" color="red">
+                  False
+                </Typography>
+              </Box>
+            )}
             <FormControl
               sx={{
                 paddingTop: "30px",
@@ -91,14 +130,14 @@ export default function CardQuestion({ Quest, index, setAnswer }) {
                 aria-labelledby="demo-column-radio-buttons-group-label"
                 name="column-radio-buttons-group"
                 onChange={(e) => {
-                  setAnswer(index, e.target.value); 
+                  setAnswer(index, e.target.value);
                 }}
               >
                 {shuffledAnswers.map((ans, idx) => (
                   <FormControlLabel
                     key={idx}
                     value={ans}
-                    control={<Radio />}
+                    control={<Radio disabled={isSubmitted} />}
                     label={ans}
                   />
                 ))}
@@ -122,4 +161,6 @@ CardQuestion.propTypes = {
   }).isRequired,
   index: PropTypes.number.isRequired,
   setAnswer: PropTypes.func.isRequired,
+  isCorrect: PropTypes.bool.isRequired,
+  isSubmitted: PropTypes.bool.isRequired,
 };

@@ -24,17 +24,22 @@ export default function SubmitArea({ removeAllQuest, handleSubmit }) {
             flex: 1,
             justifyContent: "space-evenly",
             boxSizing: "border-box",
+            backgroundColor: "#f44336",
+            "&:hover": {
+              backgroundColor: "#ef5350",
+            },
+            color: "white",
           }}
           onClick={() => removeAllQuest()}
         >
-          deleted all
+          RETRY
           <IconButton aria-label="delete" size="normal">
             <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
           </IconButton>
         </Button>
 
         <Button
-          variant="outlined"
+          variant="contained"
           sx={{
             fontSize: "14px",
             fontWeight: "550",
@@ -42,11 +47,18 @@ export default function SubmitArea({ removeAllQuest, handleSubmit }) {
             flex: 1,
             justifyContent: "space-evenly",
             boxSizing: "border-box",
+            backgroundColor: "#2e7d32",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "#388e3c",
+            },
           }}
           onClick={() => handleSubmit()}
+       
         >
+          SUBMIT
           <IconButton aria-label="submit" size="normal">
-            <SendIcon fontSize="inherit" sx={{ color: "#CECECC" }} />
+            <SendIcon sx={{ color: "#CECECC" }} />
           </IconButton>
         </Button>
       </Stack>
