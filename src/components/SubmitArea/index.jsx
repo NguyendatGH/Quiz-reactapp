@@ -3,7 +3,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import PropTypes from "prop-types";
 
-export default function SubmitArea({ removeAllQuest, handleSubmit }) {
+export default function SubmitArea({ removeAllQuest, handleSubmit , isSubmitted}) {
   return (
     <div>
       <Stack
@@ -54,7 +54,7 @@ export default function SubmitArea({ removeAllQuest, handleSubmit }) {
             },
           }}
           onClick={() => handleSubmit()}
-       
+          disabled={isSubmitted}
         >
           SUBMIT
           <IconButton aria-label="submit" size="normal">
@@ -69,4 +69,5 @@ export default function SubmitArea({ removeAllQuest, handleSubmit }) {
 SubmitArea.propTypes = {
   removeAllQuest: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
+  isSubmitted: PropTypes.bool.isRequired,
 };

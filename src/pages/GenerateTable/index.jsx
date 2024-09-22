@@ -13,7 +13,6 @@ import CardQuestion from "../../components/Question_item";
 import SubmitArea from "../../components/SubmitArea";
 import FireWorkEffect from "../../components/FireWorkEffect";
 
-
 function GenerateTable() {
   const [easyQuestion, setEasyQuestion] = useState(0);
   const [mediumQuestion, setMediumQuestion] = useState(0);
@@ -134,8 +133,8 @@ function GenerateTable() {
     <>
       <Box
         sx={{
-          minWidth: "100%",
-          minHeight: "40vh",
+          width: "100%",
+          height: "40vh",
           backgroundColor: "#eee",
           padding: 0,
           gap: 10,
@@ -150,7 +149,7 @@ function GenerateTable() {
           sx={{
             width: "34%",
             height: "auto",
-            padding:"12px",
+            padding: "12px",
             position: "absolute",
             display: "flex",
             flexDirection: "row",
@@ -275,10 +274,11 @@ function GenerateTable() {
                 handleSubmit();
                 setShowFireworks(true);
               }}
+              isSubmitted={isSubmitted}
             />
-            {showFireworks && <FireWorkEffect />}
           </>
         )}
+        {showFireworks && <FireWorkEffect />}
       </Box>
     </>
   );
