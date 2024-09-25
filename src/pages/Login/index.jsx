@@ -8,20 +8,20 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import { validate } from "uuid";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { ACCOUNTS } from "./../../assets/ACCOUNTS/ACCOUNTS";
 
 export const Validationschema = Yup.object().shape({
   username: Yup.string()
     .required("Username is require!!!")
-    .min(8, "your username must be at least 8 character"),
+    .min(8, "Invalid username format!"),
   password: Yup.string()
-    .required("password is required!!!")
-    .min(5, "your password must be at least 8 character")
-    .max(16, "your password must be lower than 32 character"),
+    .required("Password is required!!!")
+    .min(5, "invalid password!")
+    .max(16, "invalid password!"),
 });
+
 function Login() {
   const [inputValues, setInputValues] = useState({
     username: "",
@@ -29,55 +29,58 @@ function Login() {
   });
 
   const navigate = useNavigate();
+
   const [vaLidate, setValidate] = useState({
-    username: false,
-    password: false,
+    name_content: false,
+    password_content: false,
   });
+
   const handleLogin = async () => {
     try {
       await Validationschema.validate(inputValues, { abortEarly: false });
-      const checkUser = ACCOUNTS.find(
-        (user) =>
-          user.username === inputValues.username &&
-          user.password === inputValues.password
+
+      const data = ACCOUNTS.find(
+        (acc) => acc.username === inputValues.username
       );
-      if (checkUser) {
-        toast.success("login success");
-        navigate("/home");
+
+      if (data != undefined) {
+        if (data.password === inputValues.password) {
+          toast.success("Login successfully!");
+          console.log("username: " + data.username);
+          setValidate({
+            username: true,
+            password: true,
+          });
+          navigate("/home");
+        } else {
+          toast.error("Incorrect password!");
+          setValidate({
+            username: false,
+            password: true,
+          });
+        }
       } else {
-        toast.error("invalid username or password");
         setValidate({
-          username: false,
+          username: true,
           password: false,
         });
+        toast.error("invalid username");
       }
     } catch (error) {
-      console.log({ error });
-      console.log(error.inner);
-
+      toast(error);
       let newValidate = {
         username: false,
         password: false,
       };
-      for (let err of error.inner) {
-        newValidate = {
-          ...newValidate,
-          [err.path]: true,
-        };
-        break;
-      }
-      console.log("newValidate");
       setValidate(newValidate);
-      toast.error(error.errors[0]);
     }
   };
-  console.log(vaLidate);
 
   return (
     <Box
       sx={{
-        minWidth: "100vw",
-        minHeight: "100vh",
+        width: "100vw",
+        height: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -113,6 +116,7 @@ function Login() {
           />
           <TextField
             fullWidth
+            type="password"
             required
             error={vaLidate.password}
             id="outlined-basic"
@@ -130,10 +134,14 @@ function Login() {
             variant="contained"
             fullWidth
             sx={{ my: 2 }}
-            onClick={() => handleLogin()}
+            onClick={handleLogin}
           >
             Login
           </Button>
+          <Link sx={{ color: "#ffcdd2" }} to="/register">
+            {" "}
+            create new account
+          </Link>
         </CardContent>
       </Card>
     </Box>
@@ -141,4 +149,3 @@ function Login() {
 }
 
 export default Login;
-//làm thêm cơ chế lưu tk, mk vào localstorage , khi reload lại trang, xét xem dữ liệu localstorage có trong hệ thống hay k
