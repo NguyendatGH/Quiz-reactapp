@@ -3,10 +3,12 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
+  FormControlLabel,
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -28,11 +30,13 @@ function Login() {
     password: "",
   });
 
+  const [rememberme, setRememberme] = useState(false);
+
   const navigate = useNavigate();
 
   const [vaLidate, setValidate] = useState({
-    name_content: false,
-    password_content: false,
+    username: false,
+    password: false,
   });
 
   const handleLogin = async () => {
@@ -46,18 +50,24 @@ function Login() {
       if (data != undefined) {
         if (data.password === inputValues.password) {
           toast.success("Login successfully!");
-          console.log("username: " + data.username);
+
+          if (rememberme) {
+            localStorage.setItem("username", inputValues.username);
+            localStorage.setItem("password", inputValues.password);
+          }
+
           setValidate({
-            username: true,
-            password: true,
+            username: false,
+            password: false,
           });
           navigate("/home");
         } else {
-          toast.error("Incorrect password!");
           setValidate({
             username: false,
             password: true,
           });
+
+          toast.error("Incorrect password!");
         }
       } else {
         setValidate({
@@ -68,13 +78,31 @@ function Login() {
       }
     } catch (error) {
       toast(error);
-      let newValidate = {
-        username: false,
-        password: false,
-      };
-      setValidate(newValidate);
+      setValidate({
+        username: true,
+        password: true,
+      });
     }
   };
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    const storedPassword = localStorage.getItem("password");
+
+    if (storedUsername && storedPassword) {
+      const data = ACCOUNTS.find((acc) => {
+        acc.username === storedUsername && acc.password === storedPassword;
+      });
+
+      if (data) {
+        toast.success("Logged in success!");
+        navigate("/home");
+      } else {
+        localStorage.removeItem("username");
+        localStorage.removeItem("password");
+      }
+    }
+  }, [navigate]);
 
   return (
     <Box
@@ -130,6 +158,18 @@ function Login() {
               })
             }
           />
+          <FormControlLabel
+            label="Remember me"
+            control={
+              <Checkbox
+                color="success"
+                sx={{ "& .MuiSvgIcon-root": { fontSize: 24 } }}
+                checked={rememberme}
+                onChange={(e) => setRememberme(e.target.checked)}
+              />
+            }
+          />
+
           <Button
             variant="contained"
             fullWidth
