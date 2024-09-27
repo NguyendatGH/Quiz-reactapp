@@ -3,8 +3,6 @@ import {
   Button,
   Card,
   CardContent,
-  Checkbox,
-  FormControlLabel,
   TextField,
   Typography,
 } from "@mui/material";
@@ -17,7 +15,8 @@ import { ACCOUNTS } from "./../../assets/ACCOUNTS/ACCOUNTS";
 export const Validationschema = Yup.object().shape({
   username: Yup.string()
     .required("Username is require!!!")
-    .min(8, "Invalid username format!"),
+    .min(5, "Invalid username format!")
+    .max(30, "username cannot longer than 30 character"),
   password: Yup.string()
     .required("Password is required!!!")
     .min(5, "invalid password!")
@@ -30,11 +29,9 @@ function Login() {
     password: "",
   });
 
-  const [rememberme, setRememberme] = useState(false);
-
   const navigate = useNavigate();
 
-  const [vaLidate, setValidate] = useState({
+  const [validate, setValidate] = useState({
     username: false,
     password: false,
   });
@@ -47,20 +44,21 @@ function Login() {
         (acc) => acc.username === inputValues.username
       );
 
-      if (data != undefined) {
+      if (data !== undefined) {
         if (data.password === inputValues.password) {
-          toast.success("Login successfully!");
+          localStorage.setItem("username", inputValues.username);
+          localStorage.setItem("password", inputValues.password);
+          console.log("store in localStorage");
 
-          if (rememberme) {
-            localStorage.setItem("username", inputValues.username);
-            localStorage.setItem("password", inputValues.password);
-          }
+          navigate("/home");
+
+          console.log("Navigating to /home inside handle login");
+          toast.success("Login successfully!");
 
           setValidate({
             username: false,
             password: false,
           });
-          navigate("/home");
         } else {
           setValidate({
             username: false,
@@ -77,7 +75,7 @@ function Login() {
         toast.error("invalid username");
       }
     } catch (error) {
-      toast(error);
+      toast.error("Login failed");
       setValidate({
         username: true,
         password: true,
@@ -85,24 +83,26 @@ function Login() {
     }
   };
 
+  const handlePressKey = (e) => {
+    if (
+      e.key === "Enter" &&
+      inputValues.username !== "" &&
+      inputValues.password !== ""
+    ) {
+      handleLogin();
+    }
+  };
+
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     const storedPassword = localStorage.getItem("password");
-
     if (storedUsername && storedPassword) {
-      const data = ACCOUNTS.find((acc) => {
-        acc.username === storedUsername && acc.password === storedPassword;
+      setInputValues({
+        username: storedUsername,
+        password: storedPassword,
       });
-
-      if (data) {
-        toast.success("Logged in success!");
-        navigate("/home");
-      } else {
-        localStorage.removeItem("username");
-        localStorage.removeItem("password");
-      }
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <Box
@@ -130,7 +130,8 @@ function Login() {
           <TextField
             fullWidth
             required
-            error={vaLidate.username}
+            error={validate.username}
+            value={inputValues.username}
             id="outlined-basic"
             label="Username"
             variant="outlined"
@@ -141,12 +142,14 @@ function Login() {
                 username: e.target.value,
               })
             }
+            onKeyDown={handlePressKey}
           />
           <TextField
             fullWidth
             type="password"
             required
-            error={vaLidate.password}
+            error={validate.password}
+            value={inputValues.password}
             id="outlined-basic"
             label="Password"
             variant="outlined"
@@ -157,17 +160,7 @@ function Login() {
                 password: e.target.value,
               })
             }
-          />
-          <FormControlLabel
-            label="Remember me"
-            control={
-              <Checkbox
-                color="success"
-                sx={{ "& .MuiSvgIcon-root": { fontSize: 24 } }}
-                checked={rememberme}
-                onChange={(e) => setRememberme(e.target.checked)}
-              />
-            }
+            onKeyDown={handlePressKey}
           />
 
           <Button
