@@ -12,6 +12,7 @@ import { QUESTIONS } from "../../assets/QUESTIONS/QUESTIONS";
 import CardQuestion from "../../components/Question_item";
 import SubmitArea from "../../components/SubmitArea";
 import FireWorkEffect from "../../components/FireWorkEffect";
+import { useNavigate } from "react-router-dom";
 
 function GenerateTable() {
   const [easyQuestion, setEasyQuestion] = useState(0);
@@ -129,8 +130,14 @@ function GenerateTable() {
     }, 5000);
   };
 
+  const navigate = useNavigate();
+  const redirect = () => {
+    navigate("/home");
+  };
+
   return (
     <>
+      <button onClick={redirect}>Home</button>
       <Box
         sx={{
           width: "100%",

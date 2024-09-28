@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Home() {
@@ -23,6 +23,7 @@ export default function Home() {
       <div>home page</div>
       <button onClick={handleLogout}>log out</button>
       <button onClick={removeUserAccount}>remove data and log out!</button>
+      <Link onClick={navigate("/generateTable")}>Generate table</Link>
     </>
   );
 }
